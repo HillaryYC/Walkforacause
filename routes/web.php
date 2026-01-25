@@ -14,6 +14,10 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+Route::get('/health', function () {
+    return response('OK', 200);
+});
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');

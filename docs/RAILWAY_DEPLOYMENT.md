@@ -48,5 +48,6 @@ railway run php artisan storage:link
 ## Notes
 
 - The build step runs `composer install` and `npm run build`.
+- Railway health checks hit `/health`, which returns `OK` without touching the DB.
 - File uploads stored on the local disk are ephemeral on Railway; use S3 or a
   Railway volume if you need persistence.
