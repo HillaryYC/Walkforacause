@@ -6,6 +6,18 @@
 - MySQL database and a database user.
 - SSH/Terminal access in cPanel (recommended) or the ability to upload `vendor/` from local.
 
+## Optional: build a ready-to-upload zip (Windows)
+
+From the project root:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/cpanel-package.ps1
+```
+
+This creates `dist/cpanel-deploy.zip` and excludes `.env` by default.
+Use `-IncludeEnv` if you want to ship `.env`, `-SkipVendor` if you will run Composer on the server,
+and `-SkipBuild` if assets are already built.
+
 ## Recommended setup (document root = public/)
 
 1. Build frontend assets locally:

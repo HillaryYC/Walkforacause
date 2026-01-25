@@ -36,6 +36,10 @@ php artisan serve
 
 See `docs/CPANEL_DEPLOYMENT.md`.
 
+### Railway deployment
+
+See `docs/RAILWAY_DEPLOYMENT.md`.
+
 ### Backups
 
 - SQLite backups are supported via `php artisan backup:database`.
