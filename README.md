@@ -9,7 +9,7 @@
 
 ## Walkin App
 
-Walking for a Cause web app built with Laravel 11 + Breeze. Users log daily distances for a cause, and each cause has a leaderboard. Admins create and manage causes.
+Walking for a Cause web app built with Laravel 11 + Breeze. Users log distances for a cause, and each cause has a leaderboard. Admins create and manage causes.
 
 ### Local setup
 

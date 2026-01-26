@@ -22,18 +22,13 @@ class CauseController extends Controller
     {
         $user = $request->user();
         $latestWalk = null;
-        $hasLoggedToday = false;
 
         if ($user) {
             $latestWalk = Walk::where('user_id', $user->id)
                 ->where('cause_id', $cause->id)
                 ->orderByDesc('walked_on')
+                ->orderByDesc('created_at')
                 ->first();
-
-            $hasLoggedToday = Walk::where('user_id', $user->id)
-                ->where('cause_id', $cause->id)
-                ->whereDate('walked_on', now()->toDateString())
-                ->exists();
         }
 
         $leaderboard = Walk::select('user_id', DB::raw('MAX(distance_km) as total_distance'))
@@ -47,7 +42,6 @@ class CauseController extends Controller
             'cause' => $cause,
             'leaderboard' => $leaderboard,
             'latestWalk' => $latestWalk,
-            'hasLoggedToday' => $hasLoggedToday,
         ]);
     }
 

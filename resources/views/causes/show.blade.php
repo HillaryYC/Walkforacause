@@ -88,24 +88,18 @@
                                 </p>
                             @endif
 
-                            @if ($hasLoggedToday)
-                                <div class="mt-4 rounded-md bg-gray-50 px-4 py-3 text-sm text-gray-600">
-                                    You have already logged a walk for today.
+                            <form method="POST" action="{{ route('walks.store', $cause) }}" class="mt-4 space-y-4">
+                                @csrf
+                                <div>
+                                    <x-input-label for="distance_km" value="Distance (km)" />
+                                    <x-text-input id="distance_km" name="distance_km" type="number" step="0.01" min="0.01" class="mt-1 block w-full" value="{{ old('distance_km') }}" required />
+                                    <x-input-error :messages="$errors->get('distance_km')" class="mt-2" />
                                 </div>
-                            @else
-                                <form method="POST" action="{{ route('walks.store', $cause) }}" class="mt-4 space-y-4">
-                                    @csrf
-                                    <div>
-                                        <x-input-label for="distance_km" value="Distance (km)" />
-                                        <x-text-input id="distance_km" name="distance_km" type="number" step="0.01" min="0.01" class="mt-1 block w-full" value="{{ old('distance_km') }}" required />
-                                        <x-input-error :messages="$errors->get('distance_km')" class="mt-2" />
-                                    </div>
 
-                                    <x-primary-button>
-                                        Log walk
-                                    </x-primary-button>
-                                </form>
-                            @endif
+                                <x-primary-button>
+                                    Log walk
+                                </x-primary-button>
+                            </form>
                         </div>
                     </div>
 
@@ -113,8 +107,8 @@
                         <div class="p-6 text-gray-900">
                             <h3 class="text-lg font-semibold">Rules</h3>
                             <ul class="mt-2 list-disc pl-5 text-sm text-gray-600 space-y-1">
-                                <li>Log one entry per day for this cause.</li>
-                                <li>Each new distance must be greater than your previous entry.</li>
+                                <li>Log as many entries as you like.</li>
+                                <li>Any positive distance is accepted.</li>
                             </ul>
                         </div>
                     </div>
