@@ -12,7 +12,7 @@
                     <div class="p-6 text-gray-900">
                         <h3 class="text-lg font-semibold">Log your walk</h3>
                         <p class="mt-2 text-sm text-gray-600">
-                            Choose a cause and submit your distance anytime. You can log as often as you like with any positive distance.
+                            Choose a cause and submit the distance you walked.
                         </p>
                         <a href="{{ route('causes.index') }}" class="mt-4 inline-flex items-center text-sm font-semibold text-indigo-600 hover:text-indigo-500">
                             Browse causes
