@@ -15,12 +15,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        if (!app()->environment('local')) {
+        $shouldSeedAdmin = app()->environment('local') || env('SEED_ADMIN_ON_PROD', false);
+
+        if (!$shouldSeedAdmin) {
             return;
         }
 
-        $adminEmail = env('ADMIN_EMAIL', 'admin@example.com');
-        $adminPassword = env('ADMIN_PASSWORD', 'password');
+        $adminEmail = env('ADMIN_EMAIL');
+        $adminPassword = env('ADMIN_PASSWORD');
+
+        if (!$adminEmail || !$adminPassword) {
+            return;
+        }
 
         User::firstOrCreate(
             ['email' => $adminEmail],
