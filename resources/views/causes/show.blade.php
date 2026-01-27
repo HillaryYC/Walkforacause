@@ -103,15 +103,6 @@
                         </div>
                     </div>
 
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div class="p-6 text-gray-900">
-                            <h3 class="text-lg font-semibold">Rules</h3>
-                            <ul class="mt-2 list-disc pl-5 text-sm text-gray-600 space-y-1">
-                                <li>Log as many entries as you like.</li>
-                                <li>Any positive distance is accepted.</li>
-                            </ul>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
