@@ -17,16 +17,22 @@
                         index: 0,
                         total: {{ $carouselCount }},
                         touchStartX: null,
+                        touchStartY: null,
                         next() { this.index = (this.index + 1) % this.total; },
                         prev() { this.index = (this.index - 1 + this.total) % this.total; },
-                        onTouchStart(event) { this.touchStartX = event.touches[0].clientX; },
+                        onTouchStart(event) {
+                            this.touchStartX = event.touches[0].clientX;
+                            this.touchStartY = event.touches[0].clientY;
+                        },
                         onTouchEnd(event) {
                             if (this.touchStartX === null) return;
                             const deltaX = event.changedTouches[0].clientX - this.touchStartX;
-                            if (Math.abs(deltaX) > 40) {
+                            const deltaY = event.changedTouches[0].clientY - this.touchStartY;
+                            if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY)) {
                                 deltaX < 0 ? this.next() : this.prev();
                             }
                             this.touchStartX = null;
+                            this.touchStartY = null;
                         }
                     }"
                     x-on:touchstart.passive="onTouchStart($event)"
