@@ -17,7 +17,7 @@
                     <label class="text-xs font-semibold uppercase tracking-wide text-slate-600">Causes</label>
                     <select
                         class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700"
-                        x-model="activeTab"
+                        x-model.number="activeTab"
                     >
                         @foreach ($causes as $cause)
                             <option value="{{ $cause->id }}">{{ $cause->name }}</option>
