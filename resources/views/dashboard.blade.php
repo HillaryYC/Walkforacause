@@ -80,7 +80,13 @@
                                                     <div class="absolute inset-0 flex items-center justify-center">
                                                         <div class="text-center">
                                                             <p class="text-2xl font-semibold text-slate-900" @if ($slideIndex === 0) id="ring-center-text" @endif>{{ $formatDistance($stat['total']) }} km</p>
-                                                            <p class="text-xs font-semibold text-blue-500" @if ($slideIndex === 0) id="ring-cause-name" @endif>{{ $stat['cause']->name }}</p>
+                                                            <a
+                                                                href="{{ route('causes.show', $stat['cause']) }}"
+                                                                class="text-xs font-semibold text-blue-500 hover:underline"
+                                                                @if ($slideIndex === 0) id="ring-cause-name" @endif
+                                                            >
+                                                                {{ $stat['cause']->name }}
+                                                            </a>
                                                         </div>
                                                     </div>
                                                 </div>
