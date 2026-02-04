@@ -10,16 +10,12 @@ class CauseController extends Controller
 {
     public function index()
     {
-        $causes = Cause::orderByDesc('created_at')->get();
-
-        return view('admin.causes.index', [
-            'causes' => $causes,
-        ]);
+        return redirect()->route('causes.index');
     }
 
     public function create()
     {
-        return view('admin.causes.create');
+        return redirect()->route('causes.index');
     }
 
     public function store(Request $request)
@@ -31,15 +27,13 @@ class CauseController extends Controller
 
         Cause::create($validated);
 
-        return redirect()->route('admin.causes.index')
+        return redirect()->route('causes.index')
             ->with('status', 'Cause created successfully.');
     }
 
     public function edit(Cause $cause)
     {
-        return view('admin.causes.edit', [
-            'cause' => $cause,
-        ]);
+        return redirect()->route('causes.index');
     }
 
     public function update(Request $request, Cause $cause)
@@ -51,7 +45,7 @@ class CauseController extends Controller
 
         $cause->update($validated);
 
-        return redirect()->route('admin.causes.index')
+        return redirect()->route('causes.index')
             ->with('status', 'Cause updated successfully.');
     }
 
@@ -59,7 +53,7 @@ class CauseController extends Controller
     {
         $cause->delete();
 
-        return redirect()->route('admin.causes.index')
+        return redirect()->route('causes.index')
             ->with('status', 'Cause deleted successfully.');
     }
 }

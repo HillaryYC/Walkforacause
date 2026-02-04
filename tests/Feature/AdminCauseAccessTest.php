@@ -37,7 +37,7 @@ class AdminCauseAccessTest extends TestCase
                 'description' => 'Test',
                 'start_date' => now()->toDateString(),
             ])
-            ->assertRedirect(route('admin.causes.index'));
+            ->assertRedirect(route('causes.index'));
 
         $this->assertDatabaseHas('causes', [
             'name' => 'New Cause',

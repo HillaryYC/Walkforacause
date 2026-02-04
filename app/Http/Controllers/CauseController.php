@@ -31,7 +31,7 @@ class CauseController extends Controller
                 ->first();
         }
 
-        $leaderboard = Walk::select('user_id', DB::raw('MAX(distance_km) as total_distance'))
+        $leaderboard = Walk::select('user_id', DB::raw('SUM(distance_km) as total_distance'))
             ->where('cause_id', $cause->id)
             ->groupBy('user_id')
             ->orderByDesc('total_distance')
@@ -47,11 +47,18 @@ class CauseController extends Controller
 
     public function leaderboards()
     {
-        $causes = Cause::orderByDesc('created_at')->get();
+        $user = request()->user();
+        $causes = Cause::orderByDesc('created_at')
+            ->when($user, function ($query) use ($user) {
+                $query->whereHas('walks', function ($walks) use ($user) {
+                    $walks->where('user_id', $user->id);
+                });
+            })
+            ->get();
         $leaderboards = [];
 
         foreach ($causes as $cause) {
-            $leaderboards[$cause->id] = Walk::select('user_id', DB::raw('MAX(distance_km) as total_distance'))
+            $leaderboards[$cause->id] = Walk::select('user_id', DB::raw('SUM(distance_km) as total_distance'))
                 ->where('cause_id', $cause->id)
                 ->groupBy('user_id')
                 ->orderByDesc('total_distance')

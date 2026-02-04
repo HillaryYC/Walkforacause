@@ -11,55 +11,49 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="grid gap-6 lg:grid-cols-3">
-                <div class="lg:col-span-2 space-y-6">
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div class="p-6 text-gray-900">
-                            <h3 class="text-lg font-semibold">About this cause</h3>
+        <div class="max-w-7xl mx-auto sm:px-30 lg:px-8">
+            <div class="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm lg:-mt-10 lg:min-h-[calc(100vh-10rem)] lg:flex lg:flex-col">
+                <div class="grid gap-6 lg:grid-cols-3 lg:flex-1">
+                    <div class="lg:col-span-2 space-y-6">
+                        <div>
+                            <h3 class="text-lg font-semibold text-slate-900">{{ $cause->name }}</h3>
+                            <p class="mt-2 text-sm font-semibold text-slate-900">About this cause</p>
                             <p class="mt-2 text-sm text-gray-600">{{ $cause->description ?: 'No description yet.' }}</p>
                         </div>
-                    </div>
 
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div class="p-6 text-gray-900">
+                        <div class="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
                             <div class="flex items-center justify-between">
-                                <h3 class="text-lg font-semibold">Leaderboard</h3>
-                                <span class="text-sm text-gray-500">Distance in km</span>
+                                <h3 class="text-lg font-semibold text-slate-900">Leaderboard</h3>
+                                <span class="text-sm text-blue-500">Distance in km</span>
                             </div>
 
                             @if ($leaderboard->isEmpty())
-                                <p class="mt-4 text-sm text-gray-600">No walks logged yet.</p>
+                                <p class="mt-4 text-sm text-blue-500">No walks logged yet.</p>
                             @else
-                                <div class="mt-4 overflow-x-auto">
-                                    <table class="min-w-full divide-y divide-gray-200 text-sm">
-                                        <thead class="bg-gray-50">
-                                            <tr>
-                                                <th class="px-4 py-2 text-left font-semibold text-gray-700">Rank</th>
-                                                <th class="px-4 py-2 text-left font-semibold text-gray-700">Walker</th>
-                                                <th class="px-4 py-2 text-right font-semibold text-gray-700">Distance</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="divide-y divide-gray-200">
-                                            @foreach ($leaderboard as $entry)
-                                                <tr>
-                                                    <td class="px-4 py-2 text-gray-700">{{ $loop->iteration }}</td>
-                                                    <td class="px-4 py-2 text-gray-900">{{ $entry->user->name }}</td>
-                                                    <td class="px-4 py-2 text-right text-gray-900">{{ number_format($entry->total_distance, 2) }}</td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
+                                <div class="mt-4 max-h-80 space-y-3 overflow-y-auto pr-2">
+                                    @foreach ($leaderboard as $entry)
+                                        @php($initial = strtoupper(substr($entry->user->name ?? '', 0, 1)) ?: 'U')
+                                        <div class="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
+                                            <div class="flex items-center gap-3">
+                                                <span class="w-7 text-sm font-semibold text-blue-500">{{ $loop->iteration }}.</span>
+                                                <div class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-900 text-xs font-semibold text-white">
+                                                    {{ $initial }}
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-semibold text-slate-900">{{ $entry->user->name }}</p>
+                                                </div>
+                                            </div>
+                                            <p class="text-sm font-semibold text-slate-700">{{ rtrim(rtrim(number_format($entry->total_distance, 2), '0'), '.') }} km</p>
+                                        </div>
+                                    @endforeach
                                 </div>
                             @endif
                         </div>
                     </div>
-                </div>
 
-                <div class="space-y-6">
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div class="p-6 text-gray-900">
-                            <h3 class="text-lg font-semibold">Log your walk</h3>
+                    <div class="space-y-6">
+                        <div class="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+                            <h3 class="text-lg font-semibold text-slate-900">Log your walk</h3>
 
                             @if (session('status'))
                                 <div class="mt-4 rounded-md bg-green-50 px-4 py-3 text-sm text-green-700">
@@ -79,7 +73,7 @@
 
                             @if ($latestWalk)
                                 <p class="mt-4 text-sm text-gray-600">
-                                    Your latest distance: <span class="font-semibold">{{ number_format($latestWalk->distance_km, 2) }} km</span>
+                                    Your latest distance: <span class="font-semibold">{{ rtrim(rtrim(number_format($latestWalk->distance_km, 2), '0'), '.') }} km</span>
                                     on {{ $latestWalk->walked_on->format('M j, Y') }}.
                                 </p>
                             @else
@@ -102,7 +96,6 @@
                             </form>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>

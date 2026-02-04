@@ -17,6 +17,10 @@ class WalkController extends Controller
             'distance_km' => ['required', 'numeric', 'gt:0'],
         ]);
 
+        $previousTotal = Walk::where('user_id', $user->id)
+            ->where('cause_id', $cause->id)
+            ->sum('distance_km');
+
         Walk::create([
             'user_id' => $user->id,
             'cause_id' => $cause->id,
@@ -24,6 +28,10 @@ class WalkController extends Controller
             'distance_km' => $validated['distance_km'],
         ]);
 
-        return back()->with('status', 'Walk logged successfully.');
+        return redirect()
+            ->route('dashboard')
+            ->with('status', 'Walk logged successfully.')
+            ->with('walk_logged', true)
+            ->with('previous_total', $previousTotal);
     }
 }
