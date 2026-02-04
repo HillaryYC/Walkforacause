@@ -16,9 +16,21 @@
                     x-data="{
                         index: 0,
                         total: {{ $carouselCount }},
+                        touchStartX: null,
                         next() { this.index = (this.index + 1) % this.total; },
-                        prev() { this.index = (this.index - 1 + this.total) % this.total; }
+                        prev() { this.index = (this.index - 1 + this.total) % this.total; },
+                        onTouchStart(event) { this.touchStartX = event.touches[0].clientX; },
+                        onTouchEnd(event) {
+                            if (this.touchStartX === null) return;
+                            const deltaX = event.changedTouches[0].clientX - this.touchStartX;
+                            if (Math.abs(deltaX) > 40) {
+                                deltaX < 0 ? this.next() : this.prev();
+                            }
+                            this.touchStartX = null;
+                        }
                     }"
+                    x-on:touchstart.passive="onTouchStart($event)"
+                    x-on:touchend.passive="onTouchEnd($event)"
                 >
                     <div class="space-y-6">
                         <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
