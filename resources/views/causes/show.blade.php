@@ -33,17 +33,17 @@
                                 <div class="mt-4 max-h-80 space-y-3 overflow-y-auto pr-2">
                                     @foreach ($leaderboard as $entry)
                                         @php($initial = strtoupper(substr($entry->user->name ?? '', 0, 1)) ?: 'U')
-                                        <div class="flex items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-slate-50 px-3 py-3 sm:px-4">
-                                            <div class="flex min-w-0 items-center gap-3">
-                                                <span class="w-6 text-sm font-semibold text-blue-500">{{ $loop->iteration }}.</span>
-                                                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-900 text-xs font-semibold text-white">
+                                        <div class="flex items-center justify-between gap-2 rounded-2xl border border-slate-100 bg-slate-50 px-2 py-2 sm:px-3">
+                                            <div class="flex min-w-0 items-center gap-2">
+                                                <span class="w-5 text-xs font-semibold text-blue-500">{{ $loop->iteration }}.</span>
+                                                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-900 text-[11px] font-semibold text-white">
                                                     {{ $initial }}
                                                 </div>
                                                 <div class="min-w-0">
                                                     <p class="truncate text-sm font-semibold text-slate-900">{{ $entry->user->name }}</p>
                                                 </div>
                                             </div>
-                                            <p class="shrink-0 text-sm font-semibold text-slate-700">{{ rtrim(rtrim(number_format($entry->total_distance, 2), '0'), '.') }} km</p>
+                                            <p class="shrink-0 text-xs font-semibold text-slate-700">{{ rtrim(rtrim(number_format($entry->total_distance, 2), '0'), '.') }} km</p>
                                         </div>
                                     @endforeach
                                 </div>
