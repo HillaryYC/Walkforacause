@@ -12,17 +12,32 @@
                 No causes available yet.
             </div>
         @else
-            <div class="mt-6 flex flex-wrap gap-2 rounded-2xl bg-slate-100 p-2">
-                @foreach ($causes as $cause)
-                    <button
-                        type="button"
-                        class="rounded-full px-4 py-2 text-sm font-semibold transition"
-                        :class="activeTab === {{ $cause->id }} ? 'bg-blue-900 text-white shadow' : 'text-slate-600 hover:bg-white'"
-                        x-on:click="activeTab = {{ $cause->id }}"
+            <div class="mt-6">
+                <div class="sm:hidden">
+                    <label class="text-xs font-semibold uppercase tracking-wide text-slate-600">Causes</label>
+                    <select
+                        class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700"
+                        x-model="activeTab"
+                        size="5"
                     >
-                        {{ $cause->name }}
-                    </button>
-                @endforeach
+                        @foreach ($causes as $cause)
+                            <option value="{{ $cause->id }}">{{ $cause->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="mt-4 hidden flex-wrap gap-2 rounded-2xl bg-slate-100 p-2 sm:flex sm:mt-0">
+                    @foreach ($causes as $cause)
+                        <button
+                            type="button"
+                            class="rounded-full px-4 py-2 text-sm font-semibold transition"
+                            :class="activeTab === {{ $cause->id }} ? 'bg-blue-900 text-white shadow' : 'text-slate-600 hover:bg-white'"
+                            x-on:click="activeTab = {{ $cause->id }}"
+                        >
+                            {{ $cause->name }}
+                        </button>
+                    @endforeach
+                </div>
             </div>
 
             @foreach ($causes as $cause)
