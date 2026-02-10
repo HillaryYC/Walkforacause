@@ -3,7 +3,6 @@
         <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
                 <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Leaderboard</p>
-                <h1 class="mt-2 text-2xl font-semibold text-slate-900">Leaderboard</h1>
             </div>
         </div>
 

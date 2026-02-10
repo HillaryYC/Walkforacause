@@ -1,5 +1,10 @@
 <x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
+    <div class="mb-6">
+        <p class="text-xs uppercase tracking-[0.22em] text-slate-400">Account Access</p>
+        <h1 class="mt-2 text-2xl font-semibold text-slate-900">Forgot password</h1>
+    </div>
+
+    <div class="mb-4 text-sm text-slate-600">
         {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
     </div>
 

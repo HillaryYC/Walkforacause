@@ -20,10 +20,10 @@ Route::get('/health', function () {
 });
 
 Route::get('/dashboard', DashboardController::class)
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'verified', 'no-cache'])
     ->name('dashboard');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'no-cache'])->group(function () {
     Route::get('/causes', [CauseController::class, 'index'])->name('causes.index');
     Route::get('/causes/{cause}', [CauseController::class, 'show'])->name('causes.show');
     Route::get('/leaderboards', [CauseController::class, 'leaderboards'])->name('leaderboards.index');

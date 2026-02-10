@@ -20,11 +20,6 @@
                     <x-nav-link :href="route('causes.index')" :active="request()->routeIs('causes.*')">
                         {{ __('Causes') }}
                     </x-nav-link>
-                    @if (Auth::user()?->is_admin)
-                        <x-nav-link :href="route('admin.causes.index')" :active="request()->routeIs('admin.causes.*')">
-                            {{ __('Admin') }}
-                        </x-nav-link>
-                    @endif
                 </div>
             </div>
 
@@ -83,11 +78,6 @@
             <x-responsive-nav-link :href="route('causes.index')" :active="request()->routeIs('causes.*')">
                 {{ __('Causes') }}
             </x-responsive-nav-link>
-            @if (Auth::user()?->is_admin)
-                <x-responsive-nav-link :href="route('admin.causes.index')" :active="request()->routeIs('admin.causes.*')">
-                    {{ __('Admin') }}
-                </x-responsive-nav-link>
-            @endif
         </div>
 
         <!-- Responsive Settings Options -->

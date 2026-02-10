@@ -32,6 +32,7 @@ class WalkController extends Controller
             ->route('dashboard')
             ->with('status', 'Walk logged successfully.')
             ->with('walk_logged', true)
-            ->with('previous_total', $previousTotal);
+            ->with('previous_total', $previousTotal)
+            ->with('focus_cause_id', $cause->id);
     }
 }

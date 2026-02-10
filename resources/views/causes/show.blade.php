@@ -1,28 +1,22 @@
-<x-app-layout>
-    <x-slot name="header">
-        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ $cause->name }}
-            </h2>
-            <a href="{{ route('causes.index') }}" class="text-sm font-semibold text-indigo-600 hover:text-indigo-500">
-                Back to causes
-            </a>
-        </div>
-    </x-slot>
+<x-app-layout :hide-header="true">
+    <div class="mx-auto max-w-7xl">
+        <div class="rounded-3xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6 lg:min-h-[calc(100vh-10rem)] lg:flex lg:flex-col">
+            <div class="mb-6 border-b border-slate-100 pb-5">
+                <a href="{{ route('causes.index') }}" class="text-sm font-semibold text-slate-600 hover:text-slate-900">
+                    Back to causes
+                </a>
+                <h1 class="mt-2 break-words text-2xl font-semibold text-slate-900">{{ $cause->name }}</h1>
+            </div>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-30 lg:px-8">
-            <div class="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm lg:-mt-10 lg:min-h-[calc(100vh-10rem)] lg:flex lg:flex-col">
                 <div class="grid gap-6 lg:grid-cols-3 lg:flex-1">
-                    <div class="lg:col-span-2 space-y-6">
+                    <div class="min-w-0 space-y-6 lg:col-span-2">
                         <div>
-                            <h3 class="text-lg font-semibold text-slate-900">{{ $cause->name }}</h3>
                             <p class="mt-2 text-sm font-semibold text-slate-900">About this cause</p>
-                            <p class="mt-2 text-sm text-gray-600">{{ $cause->description ?: 'No description yet.' }}</p>
+                            <p class="mt-2 text-sm text-slate-600">{{ $cause->description ?: 'No description yet.' }}</p>
                         </div>
 
-                        <div class="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
-                            <div class="flex items-center justify-between">
+                        <div class="rounded-3xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
                                 <h3 class="text-lg font-semibold text-slate-900">Leaderboard</h3>
                                 <span class="text-sm text-blue-500">Distance in km</span>
                             </div>
@@ -51,8 +45,8 @@
                         </div>
                     </div>
 
-                    <div class="space-y-6">
-                        <div class="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+                    <div class="min-w-0 space-y-6">
+                        <div class="rounded-3xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
                             <h3 class="text-lg font-semibold text-slate-900">Log your walk</h3>
 
                             @if (session('status'))
@@ -72,12 +66,12 @@
                             @endif
 
                             @if ($latestWalk)
-                                <p class="mt-4 text-sm text-gray-600">
+                                <p class="mt-4 text-sm text-slate-600">
                                     Your latest distance: <span class="font-semibold">{{ rtrim(rtrim(number_format($latestWalk->distance_km, 2), '0'), '.') }} km</span>
                                     on {{ $latestWalk->walked_on->format('M j, Y') }}.
                                 </p>
                             @else
-                                <p class="mt-4 text-sm text-gray-600">
+                                <p class="mt-4 text-sm text-slate-600">
                                     You have not logged a walk for this cause yet.
                                 </p>
                             @endif
@@ -97,7 +91,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
         </div>
     </div>
 </x-app-layout>

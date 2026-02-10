@@ -1,3 +1,29 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    :root {
+        --app-bg: #f3f5f8;
+        --app-bg-soft: #eef2f7;
+        --app-panel: #ffffff;
+        --app-border: #dbe2ea;
+        --app-text: #0f172a;
+        --app-muted: #64748b;
+        --app-accent: #0f172a;
+    }
+
+    body {
+        font-family: "Plus Jakarta Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+        color: var(--app-text);
+        background: var(--app-bg);
+    }
+}
+
+@layer components {
+    .app-shell-bg {
+        background:
+            radial-gradient(1100px 700px at 15% -20%, #ffffff 0%, rgba(255, 255, 255, 0) 70%),
+            linear-gradient(160deg, var(--app-bg-soft) 0%, var(--app-bg) 60%);
+    }
+}

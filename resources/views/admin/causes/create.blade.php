@@ -1,35 +1,25 @@
-<x-app-layout>
-    <x-slot name="header">
-        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Create Cause') }}
-            </h2>
-            <a href="{{ route('admin.causes.index') }}" class="text-sm font-semibold text-indigo-600 hover:text-indigo-500">
+<x-app-layout :hide-header="true">
+    <div class="mx-auto max-w-3xl rounded-2xl border border-[var(--app-border)] bg-white p-5 shadow-sm sm:p-7">
+        <div class="mb-6 flex flex-col gap-2 border-b border-slate-100 pb-5 sm:flex-row sm:items-center sm:justify-between">
+            <h1 class="text-2xl font-semibold text-slate-900">{{ __('Create Cause') }}</h1>
+            <a href="{{ route('admin.causes.index') }}" class="text-sm font-semibold text-slate-600 hover:text-slate-900">
                 Back to causes
             </a>
         </div>
-    </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <form method="POST" action="{{ route('admin.causes.store') }}" class="space-y-6">
-                        @csrf
+        <form method="POST" action="{{ route('admin.causes.store') }}" class="space-y-6">
+            @csrf
 
-                        @include('admin.causes._form')
+            @include('admin.causes._form')
 
-                        <div class="flex items-center justify-end gap-3">
-                            <x-secondary-button type="button" onclick="window.location='{{ route('admin.causes.index') }}'">
-                                Cancel
-                            </x-secondary-button>
-                            <x-primary-button>
-                                Save cause
-                            </x-primary-button>
-                        </div>
-                    </form>
-                </div>
+            <div class="flex items-center justify-end gap-3">
+                <x-secondary-button type="button" onclick="window.location='{{ route('admin.causes.index') }}'">
+                    Cancel
+                </x-secondary-button>
+                <x-primary-button>
+                    Save cause
+                </x-primary-button>
             </div>
-        </div>
+        </form>
     </div>
 </x-app-layout>

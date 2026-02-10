@@ -47,14 +47,7 @@ class CauseController extends Controller
 
     public function leaderboards()
     {
-        $user = request()->user();
-        $causes = Cause::orderByDesc('created_at')
-            ->when($user, function ($query) use ($user) {
-                $query->whereHas('walks', function ($walks) use ($user) {
-                    $walks->where('user_id', $user->id);
-                });
-            })
-            ->get();
+        $causes = Cause::orderByDesc('created_at')->get();
         $leaderboards = [];
 
         foreach ($causes as $cause) {

@@ -21,6 +21,7 @@ class DashboardController extends Controller
         $weeklySparkline = [];
         $weekLabels = [];
         $causeStats = [];
+        $initialCarouselIndex = 0;
 
         $weekStart = now()->startOfWeek(\Illuminate\Support\Carbon::MONDAY)->startOfDay();
         $weekEnd = now()->endOfWeek(\Illuminate\Support\Carbon::SUNDAY)->endOfDay();
@@ -29,10 +30,10 @@ class DashboardController extends Controller
             $weekLabels[] = $day->format('D');
         }
 
-        $causeOrder = Walk::select('cause_id', DB::raw('MAX(walked_on) as last_walked'))
+        $causeOrder = Walk::select('cause_id', DB::raw('MAX(created_at) as last_logged_at'))
             ->where('user_id', $user->id)
             ->groupBy('cause_id')
-            ->orderByDesc('last_walked')
+            ->orderByDesc('last_logged_at')
             ->pluck('cause_id')
             ->values();
 
@@ -85,9 +86,17 @@ class DashboardController extends Controller
                 ];
             }
 
-            $activeCause = $causeStats[0]['cause'] ?? null;
-            $activeCauseTotal = $causeStats[0]['total'] ?? null;
-            $weeklySparkline = $causeStats[0]['sparkline'] ?? array_fill(0, 7, 0.0);
+            $focusedCauseId = session('focus_cause_id');
+            if ($focusedCauseId) {
+                $focusedIndex = collect($causeStats)->search(fn ($stat) => (int) $stat['cause']->id === (int) $focusedCauseId);
+                if ($focusedIndex !== false) {
+                    $initialCarouselIndex = (int) $focusedIndex;
+                }
+            }
+
+            $activeCause = $causeStats[$initialCarouselIndex]['cause'] ?? null;
+            $activeCauseTotal = $causeStats[$initialCarouselIndex]['total'] ?? null;
+            $weeklySparkline = $causeStats[$initialCarouselIndex]['sparkline'] ?? array_fill(0, 7, 0.0);
 
             if ($activeCause) {
                 $leaderboard = Walk::select('user_id', DB::raw('SUM(distance_km) as total_distance'))
@@ -117,6 +126,7 @@ class DashboardController extends Controller
             'activeCauseTotal' => $activeCauseTotal,
             'weeklySparkline' => $weeklySparkline,
             'weekLabels' => $weekLabels,
+            'initialCarouselIndex' => $initialCarouselIndex,
         ]);
     }
 }

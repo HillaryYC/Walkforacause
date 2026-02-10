@@ -51,4 +51,21 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
         $response->assertRedirect('/');
     }
+
+    public function test_authenticated_pages_send_no_cache_headers(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get('/dashboard');
+
+        $response->assertOk();
+        $cacheControl = (string) $response->headers->get('Cache-Control');
+        $this->assertStringContainsString('no-store', $cacheControl);
+        $this->assertStringContainsString('no-cache', $cacheControl);
+        $this->assertStringContainsString('must-revalidate', $cacheControl);
+        $this->assertStringContainsString('max-age=0', $cacheControl);
+        $this->assertStringContainsString('private', $cacheControl);
+        $response->assertHeader('Pragma', 'no-cache');
+        $response->assertHeader('Expires', 'Sat, 01 Jan 1990 00:00:00 GMT');
+    }
 }
