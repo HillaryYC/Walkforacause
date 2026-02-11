@@ -124,7 +124,6 @@
                                                         <div class="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
                                                             <div class="min-w-0">
                                                                 <p class="text-sm font-semibold text-slate-900">{{ $formatDistance($walk->distance_km) }} km</p>
-                                                                <p class="truncate text-xs text-blue-500">{{ $stat['cause']->name }}</p>
                                                             </div>
                                                             <span class="shrink-0 text-xs text-blue-500">{{ \Illuminate\Support\Carbon::parse($walk->walked_on)->toFormattedDateString() }}</span>
                                                         </div>
