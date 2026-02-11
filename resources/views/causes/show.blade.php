@@ -15,10 +15,14 @@
                             <p class="mt-2 text-sm text-slate-600">{{ $cause->description ?: 'No description yet.' }}</p>
                         </div>
 
-                        <div class="rounded-3xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
+                        <a
+                            href="{{ route('leaderboards.index', ['cause' => $cause->id]) }}"
+                            class="block rounded-3xl border border-slate-100 bg-white p-4 shadow-sm transition hover:border-slate-200 hover:shadow sm:p-6"
+                            aria-label="Open full leaderboard for {{ $cause->name }}"
+                        >
                             <div class="flex flex-wrap items-center justify-between gap-2">
                                 <h3 class="text-lg font-semibold text-slate-900">Leaderboard</h3>
-                                <span class="text-sm text-blue-500">Distance in km</span>
+                                <span class="text-sm font-semibold text-blue-500">Open leaderboard</span>
                             </div>
 
                             @if ($leaderboard->isEmpty())
@@ -42,7 +46,7 @@
                                     @endforeach
                                 </div>
                             @endif
-                        </div>
+                        </a>
                     </div>
 
                     <div class="min-w-0 space-y-6">

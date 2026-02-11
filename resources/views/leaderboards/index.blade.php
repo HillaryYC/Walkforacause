@@ -1,5 +1,12 @@
 <x-app-layout :hide-header="true">
-    <div class="rounded-3xl bg-white/80 p-4 shadow-xl shadow-slate-200/70 backdrop-blur sm:p-8" x-data="{ activeTab: {{ $causes->first()?->id ?? 'null' }} }">
+    @php
+        $requestedCauseId = (int) request('cause');
+        $activeCauseId = $causes->contains('id', $requestedCauseId)
+            ? $requestedCauseId
+            : $causes->first()?->id;
+    @endphp
+
+    <div class="rounded-3xl bg-white/80 p-4 shadow-xl shadow-slate-200/70 backdrop-blur sm:p-8" x-data="{ activeTab: {{ $activeCauseId ?? 'null' }} }">
         <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
                 <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Leaderboard</p>

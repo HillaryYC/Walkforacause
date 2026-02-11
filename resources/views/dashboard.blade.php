@@ -87,6 +87,15 @@
                                                             </a>
                                                         </div>
                                                     </div>
+                                                    <button
+                                                        type="button"
+                                                        class="absolute bottom-6 left-1/2 z-10 inline-flex h-11 w-11 -translate-x-1/2 items-center justify-center rounded-full text-4xl leading-none text-slate-500 sm:hidden"
+                                                        x-data
+                                                        x-on:click="$dispatch('open-modal', 'log-walk')"
+                                                        aria-label="Submit walk"
+                                                    >
+                                                        +
+                                                    </button>
                                             </div>
                                         </div>
                                     </div>

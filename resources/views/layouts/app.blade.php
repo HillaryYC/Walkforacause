@@ -2,12 +2,15 @@
 @php
     $user = auth()->user();
     $initial = strtoupper(substr($user?->name ?? '', 0, 1)) ?: 'U';
-    $routeLabel = str(request()->route()?->getName() ?? 'dashboard')
-        ->replace('.', ' ')
-        ->replace('index', '')
-        ->headline()
-        ->trim()
-        ->value();
+    $routeName = request()->route()?->getName() ?? 'dashboard';
+    $routeLabel = request()->routeIs('causes.show')
+        ? 'Causes'
+        : str($routeName)
+            ->replace('.', ' ')
+            ->replace('index', '')
+            ->headline()
+            ->trim()
+            ->value();
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
