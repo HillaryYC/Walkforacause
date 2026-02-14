@@ -4,13 +4,13 @@
 
 @layer base {
     :root {
-        --app-bg: #f3f5f8;
-        --app-bg-soft: #eef2f7;
+        --app-bg: #f0f5fa;
+        --app-bg-soft: #d9e8f3;
         --app-panel: #ffffff;
-        --app-border: #dbe2ea;
+        --app-border: #b2d1e8;
         --app-text: #0f172a;
         --app-muted: #64748b;
-        --app-accent: #0f172a;
+        --app-accent: #457cb0;
     }
 
     body {

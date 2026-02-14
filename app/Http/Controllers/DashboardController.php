@@ -116,6 +116,13 @@ class DashboardController extends Controller
             $weeklySparkline = array_fill(0, 7, 0.0);
         }
 
+        $recentActivity = Walk::where('user_id', $user->id)
+            ->with('cause')
+            ->orderByDesc('walked_on')
+            ->orderByDesc('created_at')
+            ->limit(20)
+            ->get();
+
         return view('dashboard', [
             'user' => $user,
             'causes' => $causes,
@@ -127,6 +134,7 @@ class DashboardController extends Controller
             'weeklySparkline' => $weeklySparkline,
             'weekLabels' => $weekLabels,
             'initialCarouselIndex' => $initialCarouselIndex,
+            'recentActivity' => $recentActivity,
         ]);
     }
 }

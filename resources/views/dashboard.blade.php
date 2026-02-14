@@ -1,189 +1,165 @@
 ﻿<x-app-layout :hide-nav="false" :hide-header="true">
     @php
-        $progressPercent = 0;
-        $hasActiveWalks = $activeCause && $activeCauseTotal && $activeCauseTotal > 0;
         $formatDistance = function ($value) {
             return rtrim(rtrim(number_format($value, 2), '0'), '.');
         };
         $carouselCount = count($causeStats ?? []);
+        $donutPalette = ['#0ea5e9', '#84cc16', '#fb7185', '#f59e0b', '#14b8a6', '#8b5cf6', '#ef4444', '#6366f1'];
+        $donutStats = collect($causeStats ?? [])->filter(fn ($stat) => (float) ($stat['total'] ?? 0) > 0)->values();
+        $donutCauseCount = $donutStats->count();
+        if ($donutCauseCount >= 10) {
+            $ringSizeCss = 'min(calc(100vw - 4rem), 30rem)';
+        } elseif ($donutCauseCount >= 7) {
+            $ringSizeCss = 'min(calc(100vw - 4rem), 28rem)';
+        } elseif ($donutCauseCount >= 5) {
+            $ringSizeCss = 'min(calc(100vw - 4rem), 26rem)';
+        } else {
+            $ringSizeCss = 'min(calc(100vw - 4rem), 24rem)';
+        }
+        $donutTotal = (float) $donutStats->sum('total');
+        $donutSegments = [];
+        $donutGradient = 'conic-gradient(#e2e8f0 0% 100%)';
+
+        if ($donutTotal > 0) {
+            $runningPercent = 0.0;
+            foreach ($donutStats as $index => $stat) {
+                $segmentTotal = (float) $stat['total'];
+                $start = $runningPercent;
+                $segmentPercent = ($segmentTotal / $donutTotal) * 100;
+                $runningPercent = min($start + $segmentPercent, 100);
+                $color = $donutPalette[$index % count($donutPalette)];
+
+                $donutSegments[] = [
+                    'cause' => $stat['cause'],
+                    'name' => $stat['cause']->name,
+                    'total' => $segmentTotal,
+                    'color' => $color,
+                    'from' => $start,
+                    'to' => $runningPercent,
+                    'percent' => $segmentPercent,
+                ];
+            }
+
+            $gradientStops = array_map(fn ($segment) => sprintf('%s %.4f%% %.4f%%', $segment['color'], $segment['from'], $segment['to']), $donutSegments);
+            if (!empty($gradientStops)) {
+                $donutGradient = 'conic-gradient(' . implode(', ', $gradientStops) . ')';
+            }
+        }
     @endphp
 
     <div class="rounded-3xl border border-[var(--app-border)] bg-white p-4 shadow-sm sm:p-6 lg:p-8">
         <div class="grid gap-5 sm:gap-6 lg:grid-cols-[minmax(0,1fr),280px]">
             <section class="min-w-0 space-y-6">
-                <div class="relative">
-                <div
-                    class="grid gap-5 sm:gap-6 lg:grid-cols-[minmax(0,1fr),240px]"
-                    x-data="{
-                        index: {{ $initialCarouselIndex ?? 0 }},
-                        total: {{ $carouselCount }},
-                        touchStartX: null,
-                        touchStartY: null,
-                        next() { this.index = (this.index + 1) % this.total; },
-                        prev() { this.index = (this.index - 1 + this.total) % this.total; },
-                        onTouchStart(event) {
-                            this.touchStartX = event.touches[0].clientX;
-                            this.touchStartY = event.touches[0].clientY;
-                        },
-                        onTouchEnd(event) {
-                            if (this.touchStartX === null) return;
-                            const deltaX = event.changedTouches[0].clientX - this.touchStartX;
-                            const deltaY = event.changedTouches[0].clientY - this.touchStartY;
-                            if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY)) {
-                                deltaX < 0 ? this.next() : this.prev();
-                            }
-                            this.touchStartX = null;
-                            this.touchStartY = null;
-                        }
-                    }"
-                    x-on:touchstart.passive="onTouchStart($event)"
-                    x-on:touchend.passive="onTouchEnd($event)"
-                >
+                <div class="space-y-6">
                     <div>
                         @if ($carouselCount === 0)
                             <p class="text-sm text-blue-500">No walks yet</p>
                         @else
-                            <div class="relative min-h-[430px] overflow-x-hidden overflow-y-visible sm:min-h-[400px] lg:min-h-[360px]">
-                                @foreach ($causeStats as $slideIndex => $stat)
+                            <div class="flex flex-col items-center gap-4">
+                                <div class="w-full">
                                     <div
-                                        x-show="index === {{ $slideIndex }}"
-                                        x-cloak
-                                        class="absolute inset-0 flex flex-col justify-start"
-                                        x-transition:enter="transition ease-out duration-700"
-                                        x-transition:enter-start="opacity-0 translate-x-10"
-                                        x-transition:enter-end="opacity-100 translate-x-0"
-                                        x-transition:leave="transition ease-in duration-500"
-                                        x-transition:leave-start="opacity-100 translate-x-0"
-                                        x-transition:leave-end="opacity-0 -translate-x-10"
+                                        class="relative mx-auto rounded-full border-4 border-white shadow-sm"
+                                        style="background: {{ $donutGradient }}; width: {{ $ringSizeCss }}; height: {{ $ringSizeCss }};"
                                     >
-                                        <div class="flex flex-col items-center gap-6">
-                                            <div class="w-full text-left">
-                                                <h2 class="break-words text-lg font-semibold text-slate-900">{{ $stat['cause']->name }}</h2>
-                                                <p class="mt-2 text-xs uppercase tracking-[0.2em] text-slate-400">Total Distance</p>
-                                                <p class="mt-2 text-3xl font-semibold text-slate-900" @if ($slideIndex === 0) id="ring-total-text" @endif>{{ $formatDistance($stat['total']) }} km</p>
-                                            </div>
-                                            @php
-                                                $ringFill = $stat['hasTodayWalk'] ? 100 : 0;
-                                            @endphp
-                                            <div
-                                                @if ($slideIndex === 0) id="ring-indicator" @endif
-                                                class="relative h-52 w-52 rounded-full"
-                                                style="background: conic-gradient(#1d4ed8 {{ $ringFill }}%, #e2e8f0 0);"
-                                                data-target="{{ $stat['total'] ?? 0 }}"
-                                                data-previous="{{ $slideIndex === 0 ? session('previous_total', 0) : 0 }}"
-                                                data-animate="{{ $slideIndex === 0 && session('walk_logged') ? 'true' : 'false' }}"
-                                                data-ring-fill="{{ $ringFill }}"
-                                            >
-                                                    <div class="absolute inset-3 rounded-full bg-white"></div>
-                                                    <div class="absolute inset-0 flex items-center justify-center">
-                                                        <div class="text-center">
-                                                            <p class="text-2xl font-semibold text-slate-900" @if ($slideIndex === 0) id="ring-center-text" @endif>{{ $formatDistance($stat['total']) }} km</p>
-                                                            <a
-                                                                href="{{ route('causes.show', $stat['cause']) }}"
-                                                                class="text-xs font-semibold text-blue-500 hover:underline"
-                                                                @if ($slideIndex === 0) id="ring-cause-name" @endif
-                                                            >
-                                                                {{ $stat['cause']->name }}
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                    <button
-                                                        type="button"
-                                                        class="absolute bottom-6 left-1/2 z-10 inline-flex h-11 w-11 -translate-x-1/2 items-center justify-center rounded-full text-4xl leading-none text-slate-500 sm:hidden"
-                                                        x-data
-                                                        x-on:click="$dispatch('open-modal', 'log-walk')"
-                                                        aria-label="Submit walk"
-                                                    >
-                                                        +
-                                                    </button>
+                                        <div class="absolute rounded-full bg-white" style="inset: 26%;"></div>
+                                        <svg class="absolute inset-0 z-[1] h-full w-full" viewBox="0 0 100 100" aria-hidden="true">
+                                            @foreach ($donutSegments as $segmentIndex => $segment)
+                                                @php
+                                                    $midPercent = ($segment['from'] + $segment['to']) / 2;
+                                                    $midAngle = ($midPercent / 100) * 360;
+                                                    $midRadians = deg2rad($midAngle - 90);
+                                                    $labelRadius = 37;
+                                                    $labelX = 50 + cos($midRadians) * $labelRadius;
+                                                    $labelY = 50 + sin($midRadians) * $labelRadius;
+                                                    $nameText = trim($segment['name']);
+                                                    $valueText = $formatDistance($segment['total']) . ' km';
+                                                    $nameFontSize = min(3.5, max(1.4, $segment['percent'] * 0.14));
+                                                    $valueFontSize = min(3.0, max(1.2, $nameFontSize * 0.82));
+                                                    $nameY = $labelY - $nameFontSize * 0.65;
+                                                    $valueY = $nameY + $nameFontSize * 1.25;
+                                                @endphp
+                                                @if ($segment['percent'] >= 3)
+                                                    <a href="{{ route('causes.show', $segment['cause']) }}" style="cursor: pointer;">
+                                                        <text
+                                                            x="{{ number_format($labelX, 3, '.', '') }}"
+                                                            y="{{ number_format($nameY, 3, '.', '') }}"
+                                                            text-anchor="middle"
+                                                            style="font-size: {{ number_format($nameFontSize, 2, '.', '') }}px; font-weight: 700; fill: #ffffff; paint-order: stroke; stroke: rgba(15, 23, 42, 0.72); stroke-width: 0.6;"
+                                                        >{{ $nameText }}</text>
+                                                        <text
+                                                            x="{{ number_format($labelX, 3, '.', '') }}"
+                                                            y="{{ number_format($valueY, 3, '.', '') }}"
+                                                            text-anchor="middle"
+                                                            style="font-size: {{ number_format($valueFontSize, 2, '.', '') }}px; font-weight: 600; fill: #ffffff; paint-order: stroke; stroke: rgba(15, 23, 42, 0.72); stroke-width: 0.55;"
+                                                        >{{ $valueText }}</text>
+                                                    </a>
+                                                @endif
+                                            @endforeach
+                                        </svg>
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <div class="text-center">
+                                                <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Total Walked</p>
+                                                <p class="mt-1 text-2xl font-semibold text-slate-900">{{ $formatDistance($donutTotal) }} km</p>
                                             </div>
                                         </div>
                                     </div>
-                                @endforeach
+                                </div>
+                                <button
+                                    type="button"
+                                    class="sm:hidden inline-flex items-center justify-center gap-2 rounded-full bg-blue-500 px-8 py-3 text-sm font-semibold text-white shadow-md transition-transform hover:bg-blue-600 active:scale-95"
+                                    x-data
+                                    x-on:click="$dispatch('open-modal', 'log-walk')"
+                                    aria-label="Log walk"
+                                >
+                                    <span class="text-base leading-none">+</span>
+                                    <span>Log Walk</span>
+                                </button>
                             </div>
                         @endif
                     </div>
 
-                    <div class="min-w-0 border-t border-slate-200 pt-6 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
-                        <div class="flex items-center justify-between">
-                            <h2 class="text-sm font-semibold text-slate-900">Recent Activity</h2>
-                        </div>
-                        <div class="mt-4">
-                            @if ($carouselCount === 0)
-                                <div class="rounded-xl bg-slate-50 px-4 py-3 text-sm text-blue-500">No activity yet</div>
+                    <div class="min-w-0 border-t border-blue-200 pt-6">
+                        <h2 class="text-sm font-semibold text-slate-900">Recent Activity</h2>
+                        <div class="mt-4 max-h-72 overflow-y-auto pr-1">
+                            @if ($recentActivity->isEmpty())
+                                <div class="rounded-xl bg-blue-50 px-4 py-3 text-sm text-blue-500">No activity yet</div>
                             @else
-                                <div class="relative min-h-[260px] overflow-hidden sm:min-h-[320px]">
-                                    @foreach ($causeStats as $slideIndex => $stat)
-                                        <div
-                                            x-show="index === {{ $slideIndex }}"
-                                            x-cloak
-                                            class="absolute inset-0"
-                                            x-transition:enter="transition ease-out duration-700"
-                                            x-transition:enter-start="opacity-0 translate-x-10"
-                                            x-transition:enter-end="opacity-100 translate-x-0"
-                                            x-transition:leave="transition ease-in duration-500"
-                                            x-transition:leave-start="opacity-100 translate-x-0"
-                                            x-transition:leave-end="opacity-0 -translate-x-10"
-                                        >
-                                            @if ($stat['recentWalks']->isEmpty())
-                                                <div class="rounded-xl bg-slate-50 px-4 py-3 text-sm text-blue-500">No activity yet</div>
-                                            @else
-                                                <div class="divide-y divide-slate-100">
-                                                    @foreach ($stat['recentWalks'] as $walk)
-                                                        <div class="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-                                                            <div class="min-w-0">
-                                                                <p class="text-sm font-semibold text-slate-900">{{ $formatDistance($walk->distance_km) }} km</p>
-                                                            </div>
-                                                            <span class="shrink-0 text-xs text-blue-500">{{ \Illuminate\Support\Carbon::parse($walk->walked_on)->toFormattedDateString() }}</span>
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                            @endif
+                                <div class="divide-y divide-blue-100">
+                                    @foreach ($recentActivity as $walk)
+                                        <div class="flex items-center justify-between py-3">
+                                            <div class="min-w-0">
+                                                <p class="text-sm font-semibold text-slate-900">{{ $formatDistance($walk->distance_km) }} km</p>
+                                                <p class="text-xs text-blue-500">{{ $walk->cause->name }}</p>
+                                            </div>
+                                            <span class="shrink-0 text-xs text-slate-400">{{ $walk->walked_on->toFormattedDateString() }}</span>
                                         </div>
                                     @endforeach
                                 </div>
                             @endif
-                            @if ($carouselCount > 1)
-                                <div class="mt-4 flex items-center justify-between text-xs text-slate-400">
-                                    <button type="button" class="rounded-full px-2 py-1 hover:text-slate-700" x-on:click="prev()">Prev</button>
-                                    <div class="flex items-center gap-2">
-                                        @for ($i = 0; $i < $carouselCount; $i++)
-                                            <button
-                                                type="button"
-                                                class="h-2 w-2 rounded-full"
-                                                :class="index === {{ $i }} ? 'bg-blue-900' : 'bg-slate-200'"
-                                                x-on:click="index = {{ $i }}"
-                                            ></button>
-                                        @endfor
-                                    </div>
-                                    <button type="button" class="rounded-full px-2 py-1 hover:text-slate-700" x-on:click="next()">Next</button>
-                                </div>
-                            @endif
                         </div>
                     </div>
                 </div>
-                </div>
             </section>
 
-            <aside class="min-w-0 border-t border-slate-200 pt-6 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
+            <aside class="min-w-0 border-t border-blue-200 pt-6 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
                 <div>
                     <h2 class="text-lg font-semibold text-slate-900">Recently Added Causes</h2>
                     <div class="mt-4 space-y-3 max-h-72 overflow-y-auto pr-1">
                         @forelse ($causes->take(3) as $cause)
-                            <a href="{{ route('causes.show', $cause) }}" class="block rounded-2xl border border-slate-100 bg-white px-4 py-3 shadow-sm">
+                            <a href="{{ route('causes.show', $cause) }}" class="block rounded-2xl border border-blue-100 bg-white px-4 py-3 shadow-sm">
                                 <p class="text-sm font-semibold text-slate-900">{{ $cause->name }}</p>
-                                <p class="mt-1 text-xs text-blue-500">{{ $cause->description ?: 'No description yet.' }}</p>
+                                <p class="mt-1 text-xs text-slate-900">{{ $cause->description ?: 'No description yet.' }}</p>
                             </a>
                         @empty
-                            <div class="rounded-2xl border border-slate-100 bg-white px-4 py-3 text-sm text-blue-500">No causes available yet.</div>
+                            <div class="rounded-2xl border border-blue-100 bg-white px-4 py-3 text-sm text-slate-900">No causes available yet.</div>
                         @endforelse
                     </div>
                 </div>
 
-                <div class="mt-6 border-t border-slate-200 pt-6">
+                <div class="mt-6 border-t border-blue-200 pt-6">
                 <h2 class="text-sm font-semibold text-slate-900">Your Rank</h2>
                 <div class="mt-4 space-y-3">
-                    <div class="flex items-center justify-between rounded-2xl border border-slate-100 bg-white px-4 py-3">
+                    <div class="flex items-center justify-between rounded-2xl border border-blue-100 bg-white px-4 py-3">
                         <div>
                             <p class="text-sm font-semibold text-slate-800">
                                 @if ($leaderboardRank)
@@ -202,58 +178,10 @@
                             @endif
                         </p>
                     </div>
-                    <a href="{{ route('leaderboards.index') }}" class="inline-flex w-full items-center justify-center rounded-xl border border-slate-200 py-2 text-xs font-semibold uppercase tracking-wide text-slate-600">Open Leaderboards</a>
+                    <a href="{{ route('leaderboards.index') }}" class="inline-flex w-full items-center justify-center rounded-xl bg-blue-500 py-2 text-xs font-semibold uppercase tracking-wide text-white hover:bg-blue-600">Open Leaderboards</a>
                 </div>
                 </div>
             </aside>
         </div>
     </div>
-
-    @if (session('walk_logged'))
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const ring = document.getElementById('ring-indicator');
-                if (!ring) return;
-
-                const target = Number(ring.dataset.target || 0);
-                const previous = Number(ring.dataset.previous || 0);
-                const shouldAnimate = ring.dataset.animate === 'true';
-
-                if (!shouldAnimate || target <= 0) return;
-
-                const ringTotalText = document.getElementById('ring-total-text');
-                const ringCenterText = document.getElementById('ring-center-text');
-                const duration = 900;
-                const startValue = Math.max(0, Math.min(previous, target));
-                const startTime = performance.now();
-                const ringFillTarget = Number(ring.dataset.ringFill || 0);
-
-                const formatDistance = (value) => {
-                    const fixed = value.toFixed(2);
-                    return fixed.replace(/\.00$/, '').replace(/(\.\d)0$/, '$1');
-                };
-
-                const easeOut = (t) => 1 - Math.pow(1 - t, 3);
-
-                const updateRing = (now) => {
-                    const elapsed = Math.min((now - startTime) / duration, 1);
-                    const progress = easeOut(elapsed);
-                    const current = startValue + (target - startValue) * progress;
-                    const currentText = `${formatDistance(current)} km`;
-
-                    const fill = Math.min(progress * ringFillTarget, ringFillTarget);
-                    ring.style.background = `conic-gradient(#1d4ed8 ${fill}%, #e2e8f0 0)`;
-                    if (ringTotalText) ringTotalText.textContent = currentText;
-                    if (ringCenterText) ringCenterText.textContent = currentText;
-
-                    if (elapsed < 1) {
-                        requestAnimationFrame(updateRing);
-                    }
-                };
-
-                requestAnimationFrame(updateRing);
-            });
-        </script>
-    @endif
 </x-app-layout>
-

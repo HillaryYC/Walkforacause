@@ -31,12 +31,12 @@
                     </select>
                 </div>
 
-                <div class="mt-4 hidden flex-wrap gap-2 rounded-2xl bg-slate-100 p-2 sm:flex sm:mt-0">
+                <div class="mt-4 hidden flex-wrap gap-2 rounded-2xl bg-blue-100 p-2 sm:flex sm:mt-0">
                     @foreach ($causes as $cause)
                         <button
                             type="button"
                             class="rounded-full px-4 py-2 text-sm font-semibold transition"
-                            :class="activeTab === {{ $cause->id }} ? 'bg-blue-900 text-white shadow' : 'text-slate-600 hover:bg-white'"
+                            :class="activeTab === {{ $cause->id }} ? 'bg-blue-500 text-white shadow' : 'text-slate-600 hover:bg-white'"
                             x-on:click="activeTab = {{ $cause->id }}"
                         >
                             {{ $cause->name }}
@@ -48,17 +48,17 @@
             @foreach ($causes as $cause)
                 @php($entries = $leaderboards[$cause->id] ?? collect())
                 <div class="mt-6" x-show="activeTab === {{ $cause->id }}" x-cloak>
-                    <div class="rounded-3xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
+                    <div class="rounded-3xl border border-blue-100 bg-white p-4 shadow-sm sm:p-6">
                         @if ($entries->isEmpty())
                             <p class="text-sm text-blue-500">No walks logged yet.</p>
                         @else
                             <div class="max-h-96 space-y-3 overflow-y-auto pr-2">
                                 @foreach ($entries as $entry)
                                     @php($initial = strtoupper(substr($entry->user->name ?? '', 0, 1)) ?: 'U')
-                                    <div class="flex items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-slate-50 px-3 py-3 sm:px-4">
+                                    <div class="flex items-center justify-between gap-3 rounded-2xl border border-blue-100 bg-blue-50 px-3 py-3 sm:px-4">
                                         <div class="flex min-w-0 items-center gap-3">
                                             <span class="w-6 text-sm font-semibold text-blue-500">{{ $loop->iteration }}.</span>
-                                            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-900 text-xs font-semibold text-white">
+                                            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-500 text-xs font-semibold text-white">
                                                 {{ $initial }}
                                             </div>
                                             <div class="min-w-0">
