@@ -63,58 +63,74 @@
                                     >
                                         <div class="absolute rounded-full bg-white" style="inset: 26%;"></div>
                                         <svg class="absolute inset-0 z-[1] h-full w-full" viewBox="0 0 100 100" aria-hidden="true">
+                                            {{-- Arc path definitions: name (r=39) and value (r=34) per segment --}}
+                                            <defs>
+                                                @foreach ($donutSegments as $segmentIndex => $segment)
+                                                    @php
+                                                        $sStartRad   = deg2rad($segment['from'] / 100 * 360 - 90);
+                                                        $sEndRad     = deg2rad($segment['to']   / 100 * 360 - 90);
+                                                        $sMidPercent = ($segment['from'] + $segment['to']) / 2;
+                                                        // Text reads right-to-left on a CW arc when midPercent ∈ (25,75)
+                                                        $sBottomHalf = ($sMidPercent > 25 && $sMidPercent < 75);
+                                                        $sLargeArc   = ($segment['percent'] > 50) ? 1 : 0;
+                                                    @endphp
+                                                    @foreach ([['arc-n', 39], ['arc-v', 34]] as [$pid, $r])
+                                                        @php
+                                                            if ($sBottomHalf) {
+                                                                $px1 = 50 + $r * cos($sEndRad);   $py1 = 50 + $r * sin($sEndRad);
+                                                                $px2 = 50 + $r * cos($sStartRad); $py2 = 50 + $r * sin($sStartRad);
+                                                                $sw  = 0;
+                                                            } else {
+                                                                $px1 = 50 + $r * cos($sStartRad); $py1 = 50 + $r * sin($sStartRad);
+                                                                $px2 = 50 + $r * cos($sEndRad);   $py2 = 50 + $r * sin($sEndRad);
+                                                                $sw  = 1;
+                                                            }
+                                                            $sPathD = sprintf('M %.3f,%.3f A %s,%s 0 %d %d %.3f,%.3f',
+                                                                $px1, $py1, $r, $r, $sLargeArc, $sw, $px2, $py2);
+                                                        @endphp
+                                                        <path id="{{ $pid }}-{{ $segmentIndex }}" d="{{ $sPathD }}" fill="none"/>
+                                                    @endforeach
+                                                @endforeach
+                                            </defs>
+
+                                            {{-- Curved text labels --}}
                                             @foreach ($donutSegments as $segmentIndex => $segment)
                                                 @php
-                                                    $midPercent = ($segment['from'] + $segment['to']) / 2;
-                                                    $midAngle = ($midPercent / 100) * 360;
-                                                    $midRadians = deg2rad($midAngle - 90);
-                                                    $labelRadius = 37;
-                                                    $labelX = 50 + cos($midRadians) * $labelRadius;
-                                                    $labelY = 50 + sin($midRadians) * $labelRadius;
-                                                    $nameText = trim($segment['name']);
+                                                    $nameText  = trim($segment['name']);
                                                     $valueText = $formatDistance($segment['total']) . ' km';
 
-                                                    // Font sizes scale with segment size
-                                                    $nameFontSize = min(3.5, max(1.4, $segment['percent'] * 0.14));
+                                                    $nameFontSize  = min(3.5, max(1.4, $segment['percent'] * 0.14));
                                                     $valueFontSize = min(3.0, max(1.2, $nameFontSize * 0.82));
 
-                                                    // Chord width available at labelRadius for this segment's arc
-                                                    $halfAngle = ($segment['percent'] / 100) * M_PI;
-                                                    $chordWidth = 2 * $labelRadius * sin($halfAngle);
-                                                    $textAvailWidth = $chordWidth * 0.78;
+                                                    // Arc-length budget at each label radius
+                                                    $nameAvail  = ($segment['percent'] / 100) * 2 * M_PI * 39 * 0.80;
+                                                    $valueAvail = ($segment['percent'] / 100) * 2 * M_PI * 34 * 0.80;
 
-                                                    // Max chars that fit (bold text ≈ 0.55× fontSize per char)
-                                                    $nameMaxChars = max(0, (int) floor($textAvailWidth / ($nameFontSize * 0.55)));
-                                                    $valueMaxChars = max(0, (int) floor($textAvailWidth / ($valueFontSize * 0.55)));
+                                                    $nameMaxChars  = max(0, (int) floor($nameAvail  / ($nameFontSize  * 0.55)));
+                                                    $valueMaxChars = max(0, (int) floor($valueAvail / ($valueFontSize * 0.55)));
 
-                                                    // Truncate if needed
-                                                    $nameDisplay = mb_strlen($nameText) <= $nameMaxChars
-                                                        ? $nameText
-                                                        : rtrim(mb_substr($nameText, 0, max(1, $nameMaxChars - 1))) . '…';
-                                                    $valueDisplay = mb_strlen($valueText) <= $valueMaxChars
-                                                        ? $valueText
-                                                        : rtrim(mb_substr($valueText, 0, max(1, $valueMaxChars - 1))) . '…';
+                                                    $nameDisplay  = mb_strlen($nameText)  <= $nameMaxChars  ? $nameText  : rtrim(mb_substr($nameText,  0, max(1, $nameMaxChars  - 1))) . '…';
+                                                    $valueDisplay = mb_strlen($valueText) <= $valueMaxChars ? $valueText : rtrim(mb_substr($valueText, 0, max(1, $valueMaxChars - 1))) . '…';
 
-                                                    $nameY = $labelY - $nameFontSize * 0.65;
-                                                    $valueY = $nameY + $nameFontSize * 1.25;
+                                                    // For bottom-half segments (25–75%), the inner arc (r=34) is
+                                                    // visually higher on screen, so swap name/value paths.
+                                                    $tMidPercent = ($segment['from'] + $segment['to']) / 2;
+                                                    $tBottomHalf = ($tMidPercent > 25 && $tMidPercent < 75);
+                                                    $nameArcId   = $tBottomHalf ? 'arc-v-' . $segmentIndex : 'arc-n-' . $segmentIndex;
+                                                    $valueArcId  = $tBottomHalf ? 'arc-n-' . $segmentIndex : 'arc-v-' . $segmentIndex;
 
-                                                    // Only show if at least 3 chars fit
                                                     $showLabel = $nameMaxChars >= 3;
                                                 @endphp
                                                 @if ($showLabel)
                                                     <a href="{{ route('causes.show', $segment['cause']) }}" style="cursor: pointer;">
-                                                        <text
-                                                            x="{{ number_format($labelX, 3, '.', '') }}"
-                                                            y="{{ number_format($nameY, 3, '.', '') }}"
-                                                            text-anchor="middle"
-                                                            style="font-size: {{ number_format($nameFontSize, 2, '.', '') }}px; font-weight: 700; fill: #ffffff; paint-order: stroke; stroke: rgba(15, 23, 42, 0.72); stroke-width: 0.6;"
-                                                        >{{ $nameDisplay }}</text>
-                                                        <text
-                                                            x="{{ number_format($labelX, 3, '.', '') }}"
-                                                            y="{{ number_format($valueY, 3, '.', '') }}"
-                                                            text-anchor="middle"
-                                                            style="font-size: {{ number_format($valueFontSize, 2, '.', '') }}px; font-weight: 600; fill: #ffffff; paint-order: stroke; stroke: rgba(15, 23, 42, 0.72); stroke-width: 0.55;"
-                                                        >{{ $valueDisplay }}</text>
+                                                        <text text-anchor="middle" dominant-baseline="auto"
+                                                            style="font-size: {{ number_format($nameFontSize, 2, '.', '') }}px; font-weight: 700; fill: #ffffff; paint-order: stroke; stroke: rgba(15,23,42,0.65); stroke-width: 0.5;">
+                                                            <textPath href="#{{ $nameArcId }}" startOffset="50%">{{ $nameDisplay }}</textPath>
+                                                        </text>
+                                                        <text text-anchor="middle" dominant-baseline="auto"
+                                                            style="font-size: {{ number_format($valueFontSize, 2, '.', '') }}px; font-weight: 600; fill: #ffffff; paint-order: stroke; stroke: rgba(15,23,42,0.65); stroke-width: 0.45;">
+                                                            <textPath href="#{{ $valueArcId }}" startOffset="50%">{{ $valueDisplay }}</textPath>
+                                                        </text>
                                                     </a>
                                                 @endif
                                             @endforeach
