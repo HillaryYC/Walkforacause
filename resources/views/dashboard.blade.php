@@ -73,25 +73,48 @@
                                                     $labelY = 50 + sin($midRadians) * $labelRadius;
                                                     $nameText = trim($segment['name']);
                                                     $valueText = $formatDistance($segment['total']) . ' km';
+
+                                                    // Font sizes scale with segment size
                                                     $nameFontSize = min(3.5, max(1.4, $segment['percent'] * 0.14));
                                                     $valueFontSize = min(3.0, max(1.2, $nameFontSize * 0.82));
+
+                                                    // Chord width available at labelRadius for this segment's arc
+                                                    $halfAngle = ($segment['percent'] / 100) * M_PI;
+                                                    $chordWidth = 2 * $labelRadius * sin($halfAngle);
+                                                    $textAvailWidth = $chordWidth * 0.78;
+
+                                                    // Max chars that fit (bold text ≈ 0.55× fontSize per char)
+                                                    $nameMaxChars = max(0, (int) floor($textAvailWidth / ($nameFontSize * 0.55)));
+                                                    $valueMaxChars = max(0, (int) floor($textAvailWidth / ($valueFontSize * 0.55)));
+
+                                                    // Truncate if needed
+                                                    $nameDisplay = mb_strlen($nameText) <= $nameMaxChars
+                                                        ? $nameText
+                                                        : rtrim(mb_substr($nameText, 0, max(1, $nameMaxChars - 1))) . '…';
+                                                    $valueDisplay = mb_strlen($valueText) <= $valueMaxChars
+                                                        ? $valueText
+                                                        : rtrim(mb_substr($valueText, 0, max(1, $valueMaxChars - 1))) . '…';
+
                                                     $nameY = $labelY - $nameFontSize * 0.65;
                                                     $valueY = $nameY + $nameFontSize * 1.25;
+
+                                                    // Only show if at least 3 chars fit
+                                                    $showLabel = $nameMaxChars >= 3;
                                                 @endphp
-                                                @if ($segment['percent'] >= 3)
+                                                @if ($showLabel)
                                                     <a href="{{ route('causes.show', $segment['cause']) }}" style="cursor: pointer;">
                                                         <text
                                                             x="{{ number_format($labelX, 3, '.', '') }}"
                                                             y="{{ number_format($nameY, 3, '.', '') }}"
                                                             text-anchor="middle"
                                                             style="font-size: {{ number_format($nameFontSize, 2, '.', '') }}px; font-weight: 700; fill: #ffffff; paint-order: stroke; stroke: rgba(15, 23, 42, 0.72); stroke-width: 0.6;"
-                                                        >{{ $nameText }}</text>
+                                                        >{{ $nameDisplay }}</text>
                                                         <text
                                                             x="{{ number_format($labelX, 3, '.', '') }}"
                                                             y="{{ number_format($valueY, 3, '.', '') }}"
                                                             text-anchor="middle"
                                                             style="font-size: {{ number_format($valueFontSize, 2, '.', '') }}px; font-weight: 600; fill: #ffffff; paint-order: stroke; stroke: rgba(15, 23, 42, 0.72); stroke-width: 0.55;"
-                                                        >{{ $valueText }}</text>
+                                                        >{{ $valueDisplay }}</text>
                                                     </a>
                                                 @endif
                                             @endforeach
