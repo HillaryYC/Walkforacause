@@ -59,7 +59,6 @@
                                     </button>
                                 @endunless
                                 <div class="min-w-0">
-                                    <p class="text-[11px] uppercase tracking-[0.22em] text-slate-400">Workspace</p>
                                     <p class="truncate text-lg font-semibold text-slate-900">{{ $routeLabel ?: 'Dashboard' }}</p>
                                 </div>
                             </div>

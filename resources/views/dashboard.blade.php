@@ -4,7 +4,7 @@
             return rtrim(rtrim(number_format($value, 2), '0'), '.');
         };
         $carouselCount = count($causeStats ?? []);
-        $donutPalette = ['#0ea5e9', '#84cc16', '#fb7185', '#f59e0b', '#14b8a6', '#8b5cf6', '#ef4444', '#6366f1'];
+        $donutPalette = ['#0B3C5D', '#145DA0', '#0A2F4E', '#1F4E79', '#0B3C5D', '#145DA0', '#0A2F4E', '#1F4E79'];
         $donutStats = collect($causeStats ?? [])->filter(fn ($stat) => (float) ($stat['total'] ?? 0) > 0)->values();
         $donutCauseCount = $donutStats->count();
         if ($donutCauseCount >= 10) {
@@ -93,6 +93,24 @@
                                                 @endforeach
                                             </defs>
 
+                                            {{-- Segment divider lines --}}
+                                            @if (count($donutSegments) > 1)
+                                                @foreach ($donutSegments as $segment)
+                                                    @php
+                                                        $divAngleRad = deg2rad($segment['from'] / 100 * 360 - 90);
+                                                        $innerR = 24;
+                                                        $outerR = 50;
+                                                        $dx1 = 50 + $innerR * cos($divAngleRad);
+                                                        $dy1 = 50 + $innerR * sin($divAngleRad);
+                                                        $dx2 = 50 + $outerR * cos($divAngleRad);
+                                                        $dy2 = 50 + $outerR * sin($divAngleRad);
+                                                    @endphp
+                                                    <line x1="{{ number_format($dx1, 3) }}" y1="{{ number_format($dy1, 3) }}"
+                                                          x2="{{ number_format($dx2, 3) }}" y2="{{ number_format($dy2, 3) }}"
+                                                          stroke="#ffffff" stroke-width="0.6" />
+                                                @endforeach
+                                            @endif
+
                                             {{-- Curved text labels --}}
                                             @foreach ($donutSegments as $segmentIndex => $segment)
                                                 @php
@@ -124,11 +142,11 @@
                                                 @if ($showLabel)
                                                     <a href="{{ route('causes.show', $segment['cause']) }}" style="cursor: pointer;">
                                                         <text text-anchor="middle" dominant-baseline="auto"
-                                                            style="font-size: {{ number_format($nameFontSize, 2, '.', '') }}px; font-weight: 700; fill: #ffffff; paint-order: stroke; stroke: rgba(15,23,42,0.65); stroke-width: 0.5;">
+                                                            style="font-size: {{ number_format($nameFontSize, 2, '.', '') }}px; font-weight: 700; fill: #ffffff; paint-order: stroke; stroke: rgba(10,20,40,0.8); stroke-width: 0.6;">
                                                             <textPath href="#{{ $nameArcId }}" startOffset="50%">{{ $nameDisplay }}</textPath>
                                                         </text>
                                                         <text text-anchor="middle" dominant-baseline="auto"
-                                                            style="font-size: {{ number_format($valueFontSize, 2, '.', '') }}px; font-weight: 600; fill: #ffffff; paint-order: stroke; stroke: rgba(15,23,42,0.65); stroke-width: 0.45;">
+                                                            style="font-size: {{ number_format($valueFontSize, 2, '.', '') }}px; font-weight: 600; fill: #ffffff; paint-order: stroke; stroke: rgba(10,20,40,0.8); stroke-width: 0.5;">
                                                             <textPath href="#{{ $valueArcId }}" startOffset="50%">{{ $valueDisplay }}</textPath>
                                                         </text>
                                                     </a>
