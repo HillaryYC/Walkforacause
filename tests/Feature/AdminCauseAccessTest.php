@@ -13,7 +13,7 @@ class AdminCauseAccessTest extends TestCase
 
     public function test_non_admin_cannot_access_admin_routes(): void
     {
-        $user = User::factory()->create(['is_admin' => false]);
+        $user = User::factory()->create();
 
         $this->actingAs($user)
             ->get(route('admin.causes.index'))
@@ -29,7 +29,7 @@ class AdminCauseAccessTest extends TestCase
 
     public function test_admin_can_create_cause(): void
     {
-        $admin = User::factory()->create(['is_admin' => true]);
+        $admin = User::factory()->admin()->create();
 
         $this->actingAs($admin)
             ->post(route('admin.causes.store'), [

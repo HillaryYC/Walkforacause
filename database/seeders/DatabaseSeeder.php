@@ -33,7 +33,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Admin',
                 'password' => Hash::make($adminPassword),
-                'is_admin' => true,
+                'role' => 'super_admin',
             ]
         );
 

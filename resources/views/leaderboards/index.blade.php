@@ -52,22 +52,33 @@
                         @if ($entries->isEmpty())
                             <p class="text-sm text-blue-500">No walks logged yet.</p>
                         @else
-                            <div class="max-h-96 space-y-3 overflow-y-auto pr-2">
-                                @foreach ($entries as $entry)
-                                    @php($initial = strtoupper(substr($entry->user->name ?? '', 0, 1)) ?: 'U')
-                                    <div class="flex items-center justify-between gap-3 rounded-2xl border border-blue-100 bg-blue-50 px-3 py-3 sm:px-4">
-                                        <div class="flex min-w-0 items-center gap-3">
-                                            <span class="w-6 text-sm font-semibold text-blue-500">{{ $loop->iteration }}.</span>
-                                            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-500 text-xs font-semibold text-white">
-                                                {{ $initial }}
-                                            </div>
-                                            <div class="min-w-0">
-                                                <p class="truncate text-sm font-semibold text-slate-900">{{ $entry->user->name }}</p>
-                                            </div>
-                                        </div>
-                                        <p class="shrink-0 text-sm font-semibold text-slate-700">{{ rtrim(rtrim(number_format($entry->total_distance, 2), '0'), '.') }} km</p>
-                                    </div>
-                                @endforeach
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-sm">
+                                    <thead>
+                                        <tr class="border-b border-blue-100 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                                            <th class="pb-3 pr-4 font-semibold">#</th>
+                                            <th class="pb-3 pr-4 font-semibold">Name</th>
+                                            <th class="pb-3 text-right font-semibold">Distance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-blue-50">
+                                        @foreach ($entries as $entry)
+                                            @php($initial = strtoupper(substr($entry->user->name ?? '', 0, 1)) ?: 'U')
+                                            <tr class="transition hover:bg-blue-50/50">
+                                                <td class="py-3.5 pr-4 text-sm font-semibold text-blue-500">{{ $loop->iteration }}</td>
+                                                <td class="py-3.5 pr-4">
+                                                    <div class="flex items-center gap-3">
+                                                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-500 text-xs font-semibold text-white">
+                                                            {{ $initial }}
+                                                        </div>
+                                                        <span class="truncate font-semibold text-slate-900">{{ $entry->user->name }}</span>
+                                                    </div>
+                                                </td>
+                                                <td class="py-3.5 text-right font-semibold text-slate-700">{{ rtrim(rtrim(number_format($entry->total_distance, 2), '0'), '.') }} km</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </div>
                         @endif
                     </div>

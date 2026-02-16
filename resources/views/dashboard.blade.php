@@ -67,29 +67,38 @@
                                             <defs>
                                                 @foreach ($donutSegments as $segmentIndex => $segment)
                                                     @php
-                                                        $sStartRad   = deg2rad($segment['from'] / 100 * 360 - 90);
-                                                        $sEndRad     = deg2rad($segment['to']   / 100 * 360 - 90);
-                                                        $sMidPercent = ($segment['from'] + $segment['to']) / 2;
-                                                        // Text reads right-to-left on a CW arc when midPercent ∈ (25,75)
-                                                        $sBottomHalf = ($sMidPercent > 25 && $sMidPercent < 75);
-                                                        $sLargeArc   = ($segment['percent'] > 50) ? 1 : 0;
+                                                        $sMidPercent   = ($segment['from'] + $segment['to']) / 2;
+                                                        $sIsFullCircle = ($segment['percent'] >= 99.9);
                                                     @endphp
-                                                    @foreach ([['arc-n', 39], ['arc-v', 34]] as [$pid, $r])
+                                                    @if ($sIsFullCircle)
+                                                        {{-- Full circle: arc path degenerates; use a circle element instead --}}
+                                                        <circle id="arc-n-{{ $segmentIndex }}" cx="50" cy="50" r="39" fill="none"/>
+                                                        <circle id="arc-v-{{ $segmentIndex }}" cx="50" cy="50" r="34" fill="none"/>
+                                                    @else
                                                         @php
-                                                            if ($sBottomHalf) {
-                                                                $px1 = 50 + $r * cos($sEndRad);   $py1 = 50 + $r * sin($sEndRad);
-                                                                $px2 = 50 + $r * cos($sStartRad); $py2 = 50 + $r * sin($sStartRad);
-                                                                $sw  = 0;
-                                                            } else {
-                                                                $px1 = 50 + $r * cos($sStartRad); $py1 = 50 + $r * sin($sStartRad);
-                                                                $px2 = 50 + $r * cos($sEndRad);   $py2 = 50 + $r * sin($sEndRad);
-                                                                $sw  = 1;
-                                                            }
-                                                            $sPathD = sprintf('M %.3f,%.3f A %s,%s 0 %d %d %.3f,%.3f',
-                                                                $px1, $py1, $r, $r, $sLargeArc, $sw, $px2, $py2);
+                                                            $sStartRad   = deg2rad($segment['from'] / 100 * 360 - 90);
+                                                            $sEndRad     = deg2rad($segment['to']   / 100 * 360 - 90);
+                                                            // Text reads right-to-left on a CW arc when midPercent ∈ (25,75)
+                                                            $sBottomHalf = ($sMidPercent > 25 && $sMidPercent < 75);
+                                                            $sLargeArc   = ($segment['percent'] > 50) ? 1 : 0;
                                                         @endphp
-                                                        <path id="{{ $pid }}-{{ $segmentIndex }}" d="{{ $sPathD }}" fill="none"/>
-                                                    @endforeach
+                                                        @foreach ([['arc-n', 39], ['arc-v', 34]] as [$pid, $r])
+                                                            @php
+                                                                if ($sBottomHalf) {
+                                                                    $px1 = 50 + $r * cos($sEndRad);   $py1 = 50 + $r * sin($sEndRad);
+                                                                    $px2 = 50 + $r * cos($sStartRad); $py2 = 50 + $r * sin($sStartRad);
+                                                                    $sw  = 0;
+                                                                } else {
+                                                                    $px1 = 50 + $r * cos($sStartRad); $py1 = 50 + $r * sin($sStartRad);
+                                                                    $px2 = 50 + $r * cos($sEndRad);   $py2 = 50 + $r * sin($sEndRad);
+                                                                    $sw  = 1;
+                                                                }
+                                                                $sPathD = sprintf('M %.3f,%.3f A %s,%s 0 %d %d %.3f,%.3f',
+                                                                    $px1, $py1, $r, $r, $sLargeArc, $sw, $px2, $py2);
+                                                            @endphp
+                                                            <path id="{{ $pid }}-{{ $segmentIndex }}" d="{{ $sPathD }}" fill="none"/>
+                                                        @endforeach
+                                                    @endif
                                                 @endforeach
                                             </defs>
 
@@ -132,10 +141,13 @@
 
                                                     // For bottom-half segments (25–75%), the inner arc (r=34) is
                                                     // visually higher on screen, so swap name/value paths.
-                                                    $tMidPercent = ($segment['from'] + $segment['to']) / 2;
-                                                    $tBottomHalf = ($tMidPercent > 25 && $tMidPercent < 75);
-                                                    $nameArcId   = $tBottomHalf ? 'arc-v-' . $segmentIndex : 'arc-n-' . $segmentIndex;
-                                                    $valueArcId  = $tBottomHalf ? 'arc-n-' . $segmentIndex : 'arc-v-' . $segmentIndex;
+                                                    $tMidPercent   = ($segment['from'] + $segment['to']) / 2;
+                                                    $tIsFullCircle = ($segment['percent'] >= 99.9);
+                                                    $tBottomHalf   = !$tIsFullCircle && ($tMidPercent > 25 && $tMidPercent < 75);
+                                                    $nameArcId     = $tBottomHalf ? 'arc-v-' . $segmentIndex : 'arc-n-' . $segmentIndex;
+                                                    $valueArcId    = $tBottomHalf ? 'arc-n-' . $segmentIndex : 'arc-v-' . $segmentIndex;
+                                                    // Full circle: SVG circles trace CW from 3 o'clock; 75% = 12 o'clock (top)
+                                                    $labelOffset   = $tIsFullCircle ? '75%' : '50%';
 
                                                     $showLabel = $nameMaxChars >= 3;
                                                 @endphp
@@ -143,11 +155,11 @@
                                                     <a href="{{ route('causes.show', $segment['cause']) }}" style="cursor: pointer;">
                                                         <text text-anchor="middle" dominant-baseline="auto"
                                                             style="font-size: {{ number_format($nameFontSize, 2, '.', '') }}px; font-weight: 700; fill: #ffffff; paint-order: stroke; stroke: rgba(10,20,40,0.8); stroke-width: 0.6;">
-                                                            <textPath href="#{{ $nameArcId }}" startOffset="50%">{{ $nameDisplay }}</textPath>
+                                                            <textPath href="#{{ $nameArcId }}" startOffset="{{ $labelOffset }}">{{ $nameDisplay }}</textPath>
                                                         </text>
                                                         <text text-anchor="middle" dominant-baseline="auto"
                                                             style="font-size: {{ number_format($valueFontSize, 2, '.', '') }}px; font-weight: 600; fill: #ffffff; paint-order: stroke; stroke: rgba(10,20,40,0.8); stroke-width: 0.5;">
-                                                            <textPath href="#{{ $valueArcId }}" startOffset="50%">{{ $valueDisplay }}</textPath>
+                                                            <textPath href="#{{ $valueArcId }}" startOffset="{{ $labelOffset }}">{{ $valueDisplay }}</textPath>
                                                         </text>
                                                     </a>
                                                 @endif

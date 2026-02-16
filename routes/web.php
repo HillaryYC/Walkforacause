@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\CauseController as AdminCauseController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\CauseController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
@@ -31,6 +32,10 @@ Route::middleware(['auth', 'no-cache'])->group(function () {
 
     Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
         Route::resource('causes', AdminCauseController::class)->except(['show']);
+
+        Route::middleware('super_admin')->group(function () {
+            Route::resource('users', AdminUserController::class)->only(['index', 'edit', 'update']);
+        });
     });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

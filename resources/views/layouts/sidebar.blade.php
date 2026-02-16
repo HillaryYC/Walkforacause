@@ -4,7 +4,7 @@
 @endphp
 
 <div class="flex h-full flex-col">
-    <div class="border-b border-[var(--app-border)] px-6 py-6">
+    <div class="flex h-20 items-center border-b border-[var(--app-border)] px-6">
         <img
             src="{{ asset('images/me-logo.png') }}"
             alt="Mentorship For Excellence International Botswana"
@@ -46,6 +46,24 @@
             </a>
 
         </nav>
+
+        @if ($user?->isSuperAdmin())
+            <div class="mt-4 border-t border-[var(--app-border)] pt-4">
+                <p class="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Admin</p>
+
+                <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-2 transition {{ request()->routeIs('admin.users.*') ? 'bg-blue-100 text-blue-700' : 'text-slate-600 hover:bg-blue-100' }}">
+                    <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg {{ request()->routeIs('admin.users.*') ? 'bg-blue-200' : 'bg-blue-100' }}">
+                        <svg class="h-4 w-4 {{ request()->routeIs('admin.users.*') ? 'text-blue-600' : 'text-blue-500' }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </span>
+                    Manage Users
+                </a>
+            </div>
+        @endif
 
         @if (!request()->routeIs('profile.*'))
             <button

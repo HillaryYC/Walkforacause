@@ -29,7 +29,7 @@ class AppServiceProvider extends ServiceProvider
         }
 
         Gate::define('admin', function (User $user): bool {
-            return $user->is_admin;
+            return $user->isAdmin();
         });
 
         View::composer('layouts.app', function ($view) {

@@ -6,7 +6,7 @@
                 <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Causes</p>
                 <h1 class="mt-2 text-2xl font-semibold text-slate-900">Available Causes</h1>
             </div>
-            @if (auth()->user()?->is_admin)
+            @if (auth()->user()?->isAdmin())
                 <button
                     type="button"
                     class="inline-flex items-center gap-2 rounded-full bg-blue-500 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow"
@@ -37,7 +37,7 @@
                                     {{ $cause->description ?: 'No description yet.' }}
                                 </p>
                             </a>
-                            @if (auth()->user()?->is_admin)
+                            @if (auth()->user()?->isAdmin())
                                 <div class="flex items-center gap-2">
                                     <button
                                         type="button"
@@ -77,7 +77,7 @@
         @endif
     </div>
 
-        @if (auth()->user()?->is_admin)
+        @if (auth()->user()?->isAdmin())
             <x-modal name="add-cause" maxWidth="lg">
             <div class="px-6 py-5">
                 <div class="flex items-start justify-between">
